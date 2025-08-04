@@ -28,7 +28,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("email", "first_name", "last_name", "password", "is_staff")
+        fields = ("email", "first_name", "last_name", "password", "is_agent")
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
@@ -38,14 +38,16 @@ class LoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)
     password = serializers.CharField(
         max_length=128, min_length=8, write_only=True)
-    full_name = serializers.ReadOnlyField(source="get_full_name")
+    # full_name = serializers.ReadOnlyField(source="get_full_name")
+    full_name = serializers.CharField(max_length=255, read_only=True)
     access_token = serializers.CharField(max_length=255, read_only=True)
     refresh_token = serializers.CharField(max_length=255, read_only=True)
+    access_token_exp = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = User
-        fields = ("email", "full_name", "password", "access_token", "refresh_token")
-        read_only_fields = ["full_name", "access_token", "refresh_token"]
+        fields = ("email", "full_name", "password", "access_token", "refresh_token", "access_token_exp")
+        read_only_fields = ["full_name", "access_token", "refresh_token", "access_token_exp"]
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -66,6 +68,7 @@ class LoginSerializer(serializers.ModelSerializer):
             'full_name': user.get_full_name,
             'access_token': str(user_tokens.get('access')),
             'refresh_token': str(user_tokens.get('refresh')),
+            'access_token_exp': user_tokens.get('access_token_exp'),
         }
     
 

@@ -18,9 +18,9 @@ class User(AbstractUser):
     FACEBOOK = 'facebook'
 
     AUTH_PROVIDERS = {
-        EMAIL: EMAIL,
-        GOOGLE: GOOGLE,
-        FACEBOOK: FACEBOOK,
+        EMAIL: "Email",
+        GOOGLE: "Google",
+        FACEBOOK: "Facebook",
     }
 
     username = None
@@ -33,7 +33,8 @@ class User(AbstractUser):
             'Unselect this instead of deleting accounts.'
         ),
     )
-    is_verified = models.BooleanField(_('verified'), default=False)
+    is_verified = models.BooleanField(_('Has user email been verified'), default=False)
+    is_agent = models.BooleanField(_('Is user an agent'), default=False)
     auth_provider = models.CharField(max_length=8, choices=AUTH_PROVIDERS, default=EMAIL)
 
     objects = CustomUserManager()
@@ -58,6 +59,7 @@ class User(AbstractUser):
         return {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
+            'access_token_exp': datetime.fromtimestamp(refresh.access_token['exp'])
         }
     
 
